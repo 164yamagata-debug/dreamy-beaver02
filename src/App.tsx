@@ -29,10 +29,11 @@ export default function SpaOmikuji() {
   const [currentUrl, setCurrentUrl] = useState<string>("");
 
   // 【重要】デザインが崩れるのを防ぐ自動修復機能
-  // 画面が表示された瞬間に、自動的にTailwind CSS（デザイン用ツール）を読み込みます
   useEffect(() => {
-    // URLの取得
-    setCurrentUrl(window.location.href);
+    // URLの取得（念のため遅延させて確実に取得）
+    const timer = setTimeout(() => {
+      setCurrentUrl(window.location.href);
+    }, 500);
 
     // Tailwind CSSの読み込みチェックと注入
     if (!document.querySelector('script[src="https://cdn.tailwindcss.com"]')) {
@@ -41,15 +42,16 @@ export default function SpaOmikuji() {
       script.async = true;
       document.head.appendChild(script);
     }
+    return () => clearTimeout(timer);
   }, []);
 
-  // おみくじの設定（確率変更済み：大大吉5%, 大吉15%, 中吉80%）
+  // おみくじの設定（確率：大大吉5%, 大吉15%, 中吉80%）
   const fortunes: Fortune[] = [
     {
       id: 1,
       rank: "大大吉",
       discount: "1,000円 OFF",
-      desc: "最高の幸運が舞い降りました！\n至福の癒やしを特別価格で。",
+      desc: "心も体も絶好調。\n挑戦も出会いもすべてが追い風。\nOLIVE SPAで癒されれば、運気は最高潮。",
       color: "text-yellow-600",
       borderColor: "border-yellow-500",
       bgPattern: "bg-yellow-50",
@@ -59,7 +61,7 @@ export default function SpaOmikuji() {
       id: 2,
       rank: "大吉",
       discount: "500円 OFF",
-      desc: "素晴らしい一年の始まり。\n贅沢コースをお得にお楽しみください。",
+      desc: "良い流れに乗れる一年。\n新しい挑戦やご縁に恵まれそう。\nOLIVE SPAで運気をさらに底上げ。",
       color: "text-red-600",
       borderColor: "border-red-600",
       bgPattern: "bg-red-50",
@@ -69,7 +71,7 @@ export default function SpaOmikuji() {
       id: 3,
       rank: "中吉",
       discount: "お年賀お菓子",
-      desc: "ささやかな幸せをお届け。\n心ばかりのプレゼントです。",
+      desc: "穏やかで安定した一年。\n無理せず整えることが開運のカギ。\nOLIVE SPAで心身をリセット。",
       color: "text-pink-600",
       borderColor: "border-pink-500",
       bgPattern: "bg-pink-50",
@@ -190,21 +192,26 @@ export default function SpaOmikuji() {
               <br />
               以下のQRコードを読み取ってください。
             </p>
-            <div className="p-4 bg-white border-2 border-red-100 rounded-xl mb-4 flex justify-center items-center min-h-[200px]">
+            <div className="p-4 bg-white border-2 border-red-100 rounded-xl mb-4 flex flex-col justify-center items-center min-h-[200px]">
               {currentUrl ? (
-                <img
-                  src={`https://quickchart.io/qr?text=${encodeURIComponent(
-                    currentUrl
-                  )}&size=200&margin=2&ecLevel=M`}
-                  alt="Page QR Code"
-                  className="w-48 h-48"
-                />
+                <>
+                  <img
+                    src={`https://quickchart.io/qr?text=${encodeURIComponent(
+                      currentUrl
+                    )}&size=200&margin=2&ecLevel=M&light=ffffff`}
+                    alt="Page QR Code"
+                    className="w-48 h-48 mb-2"
+                  />
+                  <p className="text-[10px] text-stone-400 break-all max-w-[200px] leading-tight text-center">
+                    接続先: {currentUrl}
+                  </p>
+                </>
               ) : (
                 <div className="text-stone-400 text-sm">URL取得中...</div>
               )}
             </div>
             <p className="text-xs text-stone-400">
-              ※お客様の端末でおみくじが引けます
+              ※URLが正しいかご確認ください
             </p>
           </div>
         </div>
@@ -219,7 +226,7 @@ export default function SpaOmikuji() {
           <div className="mb-4 flex justify-center h-20 items-center">
             {!imageError ? (
               <img
-                src="オリーブスパ＿ROGO＿2023.jpg"
+                src="オリーブスパrogo.png"
                 alt="OLIVE SPA"
                 className="h-full object-contain"
                 onError={() => setImageError(true)}
@@ -259,9 +266,6 @@ export default function SpaOmikuji() {
               <Sparkles className="w-5 h-5" />
               おみくじを引く
             </button>
-            <p className="mt-4 text-xs text-stone-400">
-              期間中は何度でも挑戦できます
-            </p>
           </div>
         )}
 
